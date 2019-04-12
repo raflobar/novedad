@@ -54,14 +54,11 @@ router.delete('/:userId', (req, res)=>{
 router.put('/', (req, res) => {
   const { _id, idnombre, password, correo, apellidos, nombres } = req.body;
   // Necesitamos obtener el valor del campo SALT para poder generar el password
-  usuariosController.update(
-    _id,
-    idnombre, 
-    password, 
-    correo, 
-    apellidos, 
-    nombres    
-  ).then(
+  var salt = crypto.randomBytes(16).toString('hex');
+  var hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  
+  usuariosController.update( _id, idnombre, hash, correo, apellidos, nombres, salt  )
+  .then(
     (success)=> res.json( success ),
     (err)=> res.status(500).json(err)
   )

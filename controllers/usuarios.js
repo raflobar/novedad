@@ -67,17 +67,17 @@ class Usuario {
     });
   }
 
-  update( _id, idnombre,password,correo,apellidos,nombres ){
+  update( _id, idnombre,hash,correo,apellidos,nombres,salt ){
     return new Promise( (resolve, reject) => {
       const dataUser = {
         idnombre,
-        password,
+        password : hash,
         correo,
         apellidos,
-        nombres
+        nombres,
+        salt
       }
-      if ( password != '') dataUser.password = password;
-
+      if ( password != '') dataUser.password = hash;
       usuariosQuerys.setUpdate(
         { _id },
         { $set: dataUser }
