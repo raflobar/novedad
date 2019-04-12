@@ -15,14 +15,15 @@ class Usuario {
     });
   }
 
-  store( idnombre,password,correo,apellidos,nombres ){
+  store( idnombre,hash,correo,apellidos,nombres,salt ){
     return new Promise( (resolve, reject) => {
       const dataUser = {
         idnombre,
-        password,
+        password : hash,
         correo,
         apellidos,
-        nombres
+        nombres,
+        salt
       }
       usuariosQuerys.setStore(dataUser).then(
         (newUser)=>{ resolve(newUser); }, // ok

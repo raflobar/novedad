@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const usuariosController = require('../controllers/usuarios')
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 // Listar todos los usuarios
@@ -18,7 +19,10 @@ router.get('/', (req, res)=>{
 // Crear un usuario
 router.post('/add', (req, res)=>{
   const { idnombre, password, correo, apellidos, nombres } = req.body;
-  usuariosController.store( idnombre, password, correo, apellidos, nombres ).then(
+  // generamos el valor del campo SALT
+  var salt = crypto.randomBytes(16).toString('hex');
+  var hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  usuariosController.store( idnombre, hash, correo, apellidos, nombres, salt ).then(
     (success)=>{ 
       res.json( success )
     },
@@ -49,6 +53,7 @@ router.delete('/:userId', (req, res)=>{
 // Actualizar usuario por id
 router.put('/', (req, res) => {
   const { _id, idnombre, password, correo, apellidos, nombres } = req.body;
+  // Necesitamos obtener el valor del campo SALT para poder generar el password
   usuariosController.update(
     _id,
     idnombre, 
