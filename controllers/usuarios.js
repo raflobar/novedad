@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const usuariosQuerys = require('../querys/usuarios');
 const jwt = require('../helpers/jwt');
+const crypto = require('crypto');
 
 class Usuario {
   lista(){
@@ -90,12 +91,22 @@ class Usuario {
 
   login (idnombre, password) {
     return new Promise((resolve, reject) => {
-      usuariosQuerys.getShow( 
-        { idnombre: idnombre, password: password }, { _id: 1 } )
-        .then(
+      usuariosQuerys.getShow({idnombre: idnombre}, {salt : 1 }).then(
         (info) => {  resolve(info) },
         (error) => { reject(error) }
       )
+      console.log(error);
+      if(info !=null){
+        var _salt = info.salt;
+        console.log({salt : _salt, pass : password});
+        var hash = crypto.pbkdf2Sync(password, _salt, 1000, 64, 'sha512').toString('hex');
+        usuariosQuerys.getShow( 
+          { idnombre: idnombre, password: hash }, { _id: 1 } )
+          .then(
+          (info) => {  resolve(info) },
+          (error) => { reject(error) }
+        )
+       }
     });
   }
   
